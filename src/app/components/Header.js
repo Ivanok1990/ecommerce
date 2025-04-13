@@ -1,31 +1,22 @@
+// src/app/components/Header.js
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import CartIcon from './CartIcon';
+import { SearchProducts } from '@/application/usecases/searchProducts';
 import styles from '@/app/styles/header.module.css';
 import 'boxicons/css/boxicons.min.css';
 
-export default function Header() {
+function HeaderContent() {
     const [query, setQuery] = useState('');
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const searchProducts = new SearchProducts();
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (query.trim()) {
-            // Crear nuevos query params preservando los existentes
-            const params = new URLSearchParams(searchParams.toString());
-            params.set('q', query.trim());
-            // Actualizar la URL sin recargar la página
-            router.push(`/products?${params.toString()}`);
-        } else {
-            // Si el query está vacío, eliminar el parámetro 'q'
-            const params = new URLSearchParams(searchParams.toString());
-            params.delete('q');
-            router.push(`/products?${params.toString()}`);
-        }
+        searchProducts.execute(query, router);
     };
 
     return (
@@ -65,5 +56,13 @@ export default function Header() {
                 </div>
             </nav>
         </header>
+    );
+}
+
+export default function Header() {
+    return (
+        <Suspense fallback={<div>Loading header...</div>}>
+            <HeaderContent />
+        </Suspense>
     );
 }
