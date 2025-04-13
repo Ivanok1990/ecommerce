@@ -3,17 +3,17 @@
 import { useCart } from '@/app/context/CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion'; // Add this import
+import { motion, AnimatePresence } from 'framer-motion';
+import { Suspense } from 'react';
 import styles from '../styles/Cart.module.css';
 import Footer from '../components/Footer';
 import Header from "@/app/components/Header";
 
-export default function Page() {
+// Componente de carrito separado para poder usar Suspense
+function CartContent() {
     const { cart, removeFromCart, updateQuantity, clearCart, totalPrice } = useCart();
 
     return (
-        <>
-            <Header />
         <div className={styles.cartContainer}>
             <h1 className={styles.cartTitle}>Your Cart</h1>
             {cart.length === 0 ? (
@@ -48,11 +48,11 @@ export default function Page() {
                                     <div className={styles.itemDetails}>
                                         <span className={styles.itemName}>{item.name}</span>
                                         <span className={styles.itemPrice}>
-                                            ${item.price.toFixed(2)} x {item.quantity}
-                                        </span>
+                      ${item.price.toFixed(2)} x {item.quantity}
+                    </span>
                                         <span className={styles.itemSubtotal}>
-                                            Subtotal: ${(item.price * item.quantity).toFixed(2)}
-                                        </span>
+                      Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                    </span>
                                     </div>
                                     <div className={styles.quantityControls}>
                                         <button
@@ -104,6 +104,16 @@ export default function Page() {
                 </>
             )}
         </div>
+    );
+}
+
+export default function Page() {
+    return (
+        <>
+            <Suspense fallback={<div>Loading header...</div>}>
+                <Header />
+            </Suspense>
+            <CartContent />
             <Footer />
         </>
     );
