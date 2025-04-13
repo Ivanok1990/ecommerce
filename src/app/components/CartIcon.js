@@ -1,9 +1,11 @@
+// src/app/components/CartIcon.js
 'use client';
 
 import Link from 'next/link';
 import { useCart } from '@/app/context/CartContext';
 import styles from '@/app/styles/header.module.css';
 import 'boxicons/css/boxicons.min.css';
+
 export default function CartIcon() {
     const { totalItems } = useCart();
 

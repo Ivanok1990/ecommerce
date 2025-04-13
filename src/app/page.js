@@ -10,7 +10,6 @@ import Footer from '@/app/components/Footer';
 import { Homepage } from '@/domain/entities/homepage';
 import styles from '@/app/styles/Home.module.css';
 
-// Prevent static prerendering
 export const dynamic = 'force-dynamic';
 
 function HomeContent() {
@@ -29,7 +28,6 @@ function HomeContent() {
 
             <Header />
 
-            {/* Hero Section */}
             <div className={styles.hero}>
                 <div className={styles.heroContent}>
                     <h1>{content.hero.title}</h1>
@@ -41,7 +39,6 @@ function HomeContent() {
             </div>
 
             <main className={styles.mainContainer}>
-                {/* About Sections */}
                 <section className={styles.aboutSection}>
                     <div className={styles.aboutText}>
                         <h2>{content.about.title}</h2>
@@ -67,7 +64,6 @@ function HomeContent() {
                     </div>
                 </section>
 
-                {/* Product List Section */}
                 <section className={styles.productSection}>
                     <div className={styles.sectionHeader}>
                         <h2>{content.products.title}</h2>
@@ -78,7 +74,6 @@ function HomeContent() {
                     </div>
                 </section>
 
-                {/* Commitment Section */}
                 <section className={styles.commitmentSection}>
                     <Image
                         src={content.commitment.image}

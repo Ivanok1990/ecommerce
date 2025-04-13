@@ -2,21 +2,26 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import CartIcon from './CartIcon';
-import { SearchProducts } from '@/application/usecases/searchProducts';
 import styles from '@/app/styles/header.module.css';
 import 'boxicons/css/boxicons.min.css';
 
 function HeaderContent() {
     const [query, setQuery] = useState('');
     const router = useRouter();
-    const searchProducts = new SearchProducts();
+    const searchParams = useSearchParams();
 
     const handleSearch = (e) => {
         e.preventDefault();
-        searchProducts.execute(query, router);
+        const params = new URLSearchParams(searchParams.toString());
+        if (query.trim()) {
+            params.set('q', query.trim());
+        } else {
+            params.delete('q');
+        }
+        router.push(`/products?${params.toString()}`);
     };
 
     return (
@@ -45,7 +50,7 @@ function HeaderContent() {
                         <i className="bx bx-user"></i>
                         <span className={styles.iconLabel}>Mi cuenta</span>
                     </button>
-                    <Link href="/products" className={styles.logo}>
+                    <Link href="/products" className={styles.iconButton}>
                         <button className={styles.iconButton}>
                             <i className="bx bx-heart"></i>
                             <span className={styles.iconLabel}>Coleccion</span>
