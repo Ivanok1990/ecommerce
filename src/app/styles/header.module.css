@@ -1,0 +1,194 @@
+/* Header Styles */
+.header {
+    background-color: #FFF9FB;
+    box-shadow: 0 2px 15px rgba(255, 182, 193, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 15px 0;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Logo Styles */
+.logo {
+    text-decoration: none;
+    font-family: 'Playfair Display', serif;
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.logoMain {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #E75480;
+    letter-spacing: 1px;
+}
+
+.logoSecondary {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: #FFB6C1;
+    align-self: flex-end;
+    margin-top: -8px;
+}
+
+/* Search Bar */
+.searchContainer {
+    display: flex;
+    align-items: center;
+    background: #FFF;
+    border-radius: 30px;
+    padding: 8px 15px;
+    width: 40%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.searchContainer i {
+    font-size: 1.2rem;
+    color: #E75480;
+    margin-right: 10px;
+}
+
+.searchInput {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    background: transparent;
+}
+
+/* Icons Container */
+.iconsContainer {
+    display: flex;
+    gap: 25px;
+}
+
+.iconButton {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.iconButton i {
+    font-size: 1.8rem;
+    color: #E75480;
+    transition: all 0.3s ease;
+}
+
+.iconButton:hover i {
+    transform: translateY(-3px);
+    color: #FF69B4;
+}
+
+.iconLabel {
+    font-size: 0.8rem;
+    color: #8B5D5D;
+    margin-top: 5px;
+}
+
+/* Cart Button */
+.cartButton {
+    position: relative;
+}
+
+.cartCount {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #B5EAD7;
+    color: #6D4C5B;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.cartLink {
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: #6D4C5B;
+    font-size: 1.5rem;
+}
+
+.cartBadge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #E75480;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+.searchContainer {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.searchContainer i {
+    color: #e91e63; /* Color rosa para el ícono, acorde con la temática */
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.searchInput {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    color: #333;
+}
+
+.searchInput::placeholder {
+    color: #999;
+}
+
+
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .searchContainer {
+        width: 100%;
+    }
+
+    .logoMain {
+        font-size: 2rem;
+    }
+
+    .logoSecondary {
+        font-size: 1.4rem;
+    }
+}
