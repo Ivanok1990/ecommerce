@@ -7,10 +7,14 @@ import ProductDetailModal from './ProductDetailModal';
 import styles from '@/app/styles/Products.module.css';
 import { useCart } from '@/app/context/CartContext';
 
-function ProductGridContent({ products }) {
+function ProductGridContent({ products = [] }) {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const { addToCart } = useCart();
+
+    const validProducts = Array.isArray(products)
+        ? products.filter((product) => product && product.id && product.name)
+        : [];
 
     const handleProductClick = (product, e) => {
         if (e.target.tagName !== 'BUTTON') {
@@ -31,13 +35,13 @@ function ProductGridContent({ products }) {
 
     return (
         <>
-            {products.length === 0 ? (
+            {validProducts.length === 0 ? (
                 <div className={styles.noResults}>
                     No se encontraron productos con esos filtros.
                 </div>
             ) : (
                 <div className={styles.productGrid}>
-                    {products.map((product) => (
+                    {validProducts.map((product) => (
                         <div
                             key={product.id}
                             className={styles.productCard}
@@ -65,7 +69,7 @@ function ProductGridContent({ products }) {
                             </p>
                             <div className={styles.priceContainer}>
                 <span className={styles.price}>
-                  ${product.price ? product.price.toFixed(2) : '0.00'}
+                  ${product.price ? Number(product.price).toFixed(2) : '0.00'}
                 </span>
                                 <span
                                     className={product.stock > 0 ? styles.inStock : styles.outOfStock}

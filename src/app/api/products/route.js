@@ -1,29 +1,7 @@
-// app/api/products/route.js
-import mysql from 'mysql';
+// src/app/api/products/route.js
+import { connectDB, query } from '@/app/lib/db';
 import { z } from 'zod';
 
-// Configuración de la conexión
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'lipstore',
-    connectionLimit: 10,
-    waitForConnections: true,
-    queueLimit: 0
-});
-
-// Promisify para usar async/await
-const query = (sql, values) => {
-    return new Promise((resolve, reject) => {
-        pool.query(sql, values, (error, results) => {
-            if (error) return reject(error);
-            resolve(results);
-        });
-    });
-};
-
-// Esquema de validación
 const searchParamsSchema = z.object({
     q: z.string().trim().max(100).optional(),
     category: z.string().trim().optional().default('todos'),
@@ -33,16 +11,16 @@ const searchParamsSchema = z.object({
     page: z.number().int().min(1).optional().default(1),
     limit: z.number().int().min(1).max(100).optional().default(20),
     sortBy: z.enum(['price', 'name', 'created_at']).optional().default('created_at'),
-    sortOrder: z.enum(['asc', 'desc']).optional().default('desc')
-}).refine(data => data.minPrice <= data.maxPrice, {
-    message: 'El precio mínimo debe ser menor o igual al máximo'
+    sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+}).refine((data) => data.minPrice <= data.maxPrice, {
+    message: 'El precio mínimo debe ser menor o igual al máximo',
 });
 
 export async function GET(request) {
     try {
+        await connectDB();
         const { searchParams } = new URL(request.url);
 
-        // Parsear y validar parámetros
         const params = {
             q: searchParams.get('q') || '',
             category: searchParams.get('category') || 'todos',
@@ -52,102 +30,111 @@ export async function GET(request) {
             page: parseInt(searchParams.get('page')) || 1,
             limit: parseInt(searchParams.get('limit')) || 20,
             sortBy: searchParams.get('sortBy') || 'created_at',
-            sortOrder: searchParams.get('sortOrder') || 'desc'
+            sortOrder: searchParams.get('sortOrder') || 'desc',
         };
 
         const validatedParams = searchParamsSchema.parse(params);
 
-        // Construir consulta base
-        let sqlQuery = `
-      SELECT 
-        p.*,
-        c.name AS category_name,
-        GROUP_CONCAT(DISTINCT pc.color) AS colors,
-        GROUP_CONCAT(DISTINCT pd.detail) AS details
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN product_colors pc ON p.id = pc.product_id
-      LEFT JOIN product_details pd ON p.id = pd.product_id
-      WHERE p.price BETWEEN ? AND ?
-    `;
+        // Build WHERE clause
+        let whereClauses = ['p.price BETWEEN ? AND ?'];
+        let queryParams = [validatedParams.minPrice, validatedParams.maxPrice];
 
-        const queryParams = [
-            validatedParams.minPrice,
-            validatedParams.maxPrice
-        ];
-
-        // Añadir filtros
         if (validatedParams.q) {
-            sqlQuery += ` AND (p.name LIKE ? OR p.description LIKE ?)`;
+            whereClauses.push('(p.name LIKE ? OR p.description LIKE ?)');
             queryParams.push(`%${validatedParams.q}%`, `%${validatedParams.q}%`);
         }
 
         if (validatedParams.category !== 'todos') {
-            sqlQuery += ` AND c.name = ?`;
+            whereClauses.push('c.name = ?');
             queryParams.push(validatedParams.category);
         }
 
         if (validatedParams.color) {
-            sqlQuery += ` AND pc.color = ?`;
+            whereClauses.push('pc.color = ?');
             queryParams.push(validatedParams.color);
         }
 
-        // Agrupar y ordenar
-        sqlQuery += `
+        const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Build SQL query
+        const sql = `
+      SELECT DISTINCT p.id, p.name, p.description, p.price, p.image, p.stock, 
+             c.name AS category,
+             GROUP_CONCAT(DISTINCT pc.color) AS colors,
+             GROUP_CONCAT(DISTINCT pd.detail) AS details
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN product_colors pc ON p.id = pc.product_id
+      LEFT JOIN product_details pd ON p.id = pd.product_id
+      ${whereClause}
       GROUP BY p.id
-      ORDER BY ${validatedParams.sortBy} ${validatedParams.sortOrder}
-      LIMIT ? OFFSET ?
+      ORDER BY p.${validatedParams.sortBy} ${validatedParams.sortOrder.toUpperCase()}
+      LIMIT ? OFFSET ?;
     `;
 
-        queryParams.push(
-            validatedParams.limit,
-            (validatedParams.page - 1) * validatedParams.limit
-        );
+        const countSql = `
+      SELECT COUNT(DISTINCT p.id) as total
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN product_colors pc ON p.id = pc.product_id
+      LEFT JOIN product_details pd ON p.id = pd.product_id
+      ${whereClause};
+    `;
 
-        // Ejecutar consulta
-        const products = await query(sqlQuery, queryParams);
+        queryParams.push(validatedParams.limit, (validatedParams.page - 1) * validatedParams.limit);
 
-        // Obtener conteo total
-        const [countResult] = await query('SELECT COUNT(*) as total FROM products');
-        const total = countResult.total;
+        // Execute queries
+        const products = await query(sql, queryParams);
+        const [{ total }] = await query(countSql, queryParams.slice(0, -2));
 
-        // Formatear respuesta
-        const formattedProducts = products.map(product => ({
+        // Format results
+        const formattedProducts = products.map((product) => ({
             id: product.id,
-            name: product.name,
-            description: product.description,
-            price: parseFloat(product.price),
-            image: product.image,
-            stock: product.stock,
+            name: product.name || 'Unnamed Product',
+            description: product.description || '',
+            price: parseFloat(product.price) || 0,
+            image: product.image || '/images/default-product.jpg',
+            stock: product.stock || 0,
             colors: product.colors ? product.colors.split(',') : [],
             details: product.details ? product.details.split(',') : [],
-            category: product.category_name || 'Sin categoría'
+            category: product.category || 'Sin categoría',
         }));
 
-        return new Response(JSON.stringify({
-            success: true,
-            data: formattedProducts,
-            pagination: {
-                total,
-                totalPages: Math.ceil(total / validatedParams.limit),
-                currentPage: validatedParams.page,
-                perPage: validatedParams.limit
+        return new Response(
+            JSON.stringify({
+                success: true,
+                data: formattedProducts,
+                pagination: {
+                    total,
+                    totalPages: Math.ceil(total / validatedParams.limit),
+                    currentPage: validatedParams.page,
+                    perPage: validatedParams.limit,
+                },
+            }),
+            {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
             }
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
-
+        );
     } catch (error) {
-        console.error('Error en /api/products:', error);
-
-        return new Response(JSON.stringify({
-            success: false,
-            error: error instanceof z.ZodError ? 'Parámetros inválidos' : 'Error del servidor',
-            details: error.message
-        }), {
-            status: error instanceof z.ZodError ? 400 : 500,
-            headers: { 'Content-Type': 'application/json' }
+        console.error('Error en /api/products:', {
+            message: error.message,
+            stack: error.stack,
+            params: request.url,
         });
+        return new Response(
+            JSON.stringify({
+                success: false,
+                error:
+                    error instanceof z.ZodError
+                        ? 'Parámetros inválidos'
+                        : 'Error del servidor',
+                details: error.message,
+            }),
+            {
+                status: error instanceof z.ZodError ? 400 : 500,
+                headers: { 'Content-Type': 'application/json' },
+            }
+        );
     }
 }

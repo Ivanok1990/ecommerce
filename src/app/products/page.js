@@ -37,11 +37,15 @@ function ProductsContent() {
 
                 const { data, pagination: paginationData } = await fetchProductsUseCase.execute(params.toString());
 
-                setProducts(data);
-                setPagination(paginationData);
+                const validData = Array.isArray(data)
+                    ? data.filter((product) => product && product.id && product.name)
+                    : [];
+                setProducts(validData);
+                setPagination(paginationData || pagination);
             } catch (error) {
                 console.error('Error fetching products:', error);
-                setError(error.message || 'No se pudieron cargar los productos');
+                setError(error.message || 'No se pudieron cargar los productos. Intenta de nuevo.');
+                setProducts([]);
             } finally {
                 setLoading(false);
             }

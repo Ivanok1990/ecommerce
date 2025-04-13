@@ -1,4 +1,4 @@
-// src/application/usecases/fetchProducts.js
+// src/app/usecases/fetchProducts.js
 export class FetchProducts {
     async execute(queryString) {
         const response = await fetch(`/api/products?${queryString}`);
