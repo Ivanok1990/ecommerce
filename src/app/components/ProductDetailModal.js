@@ -1,20 +1,20 @@
+// src/app/components/ProductDetailModal.js
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import styles from '@/app/styles/Products.module.css';
 
-export default function ProductDetailModal({
-                                               product,
-                                               onClose,
-                                               onAddToCart,
-                                               quantity = 1,
-                                               setQuantity = () => {}
-                                           }) {
-    // Bloquear scroll cuando el modal está abierto
+function ModalContent({
+                          product,
+                          onClose,
+                          onAddToCart,
+                          quantity = 1,
+                          setQuantity = () => {},
+                      }) {
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-        return () => document.body.style.overflow = 'unset';
+        return () => (document.body.style.overflow = 'unset');
     }, []);
 
     const handleQuantityChange = (newQuantity) => {
@@ -27,11 +27,10 @@ export default function ProductDetailModal({
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
                 <button className={styles.closeButton} onClick={onClose}>
-                    <i className='bx bx-x'></i>
+                    <i className="bx bx-x"></i>
                 </button>
 
                 <div className={styles.modalGrid}>
-                    {/* Columna de imagen */}
                     <div className={styles.modalImageContainer}>
                         <Image
                             src={product.image || '/images/default-product.jpg'}
@@ -43,14 +42,14 @@ export default function ProductDetailModal({
                         />
                     </div>
 
-                    {/* Columna de información */}
                     <div className={styles.modalInfo}>
                         <h2>{product.name || 'Producto'}</h2>
-                        <p className={styles.modalPrice}>${product.price ? (product.price * quantity).toFixed(2) : '0.00'}</p>
+                        <p className={styles.modalPrice}>
+                            ${product.price ? (product.price * quantity).toFixed(2) : '0.00'}
+                        </p>
 
                         <div className={styles.modalDescription}>
                             <p>{product.description || 'Descripción no disponible'}</p>
-
                             {product.details && (
                                 <ul className={styles.detailsList}>
                                     {product.details.map((detail, index) => (
@@ -60,7 +59,6 @@ export default function ProductDetailModal({
                             )}
                         </div>
 
-                        {/* Selector de color */}
                         {product.colors && product.colors.length > 0 && (
                             <div className={styles.colorSelector}>
                                 <h4>Colores disponibles:</h4>
@@ -77,7 +75,6 @@ export default function ProductDetailModal({
                             </div>
                         )}
 
-                        {/* Selector de cantidad */}
                         <div className={styles.quantitySelector}>
                             <h4>Cantidad:</h4>
                             <div className={styles.quantityControls}>
@@ -97,7 +94,6 @@ export default function ProductDetailModal({
                             </div>
                         </div>
 
-                        {/* Botones de acción */}
                         <div className={styles.modalActions}>
                             <button
                                 className={styles.addToCartButton}
@@ -105,10 +101,7 @@ export default function ProductDetailModal({
                             >
                                 Añadir al carrito (${(product.price * quantity).toFixed(2)})
                             </button>
-                            <button
-                                className={styles.continueShopping}
-                                onClick={onClose}
-                            >
+                            <button className={styles.continueShopping} onClick={onClose}>
                                 Seguir viendo
                             </button>
                         </div>
@@ -116,5 +109,13 @@ export default function ProductDetailModal({
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ProductDetailModal(props) {
+    return (
+        <Suspense fallback={<div>Loading modal...</div>}>
+            <ModalContent {...props} />
+        </Suspense>
     );
 }

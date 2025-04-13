@@ -1,14 +1,18 @@
+// src/app/products/page.js
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import ProductGrid from '@/app/components/ProductGrid';
 import ProductFilter from '@/app/components/ProductFilter';
+import { FetchProducts } from '@/app/usecases/fetchProducts';
 import styles from '@/app/styles/Products.module.css';
 
-export default function ProductsPage() {
+export const dynamic = 'force-dynamic';
+
+function ProductsContent() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,86 +20,46 @@ export default function ProductsPage() {
         total: 0,
         totalPages: 1,
         currentPage: 1,
-        perPage: 20
+        perPage: 20,
     });
     const searchParams = useSearchParams();
-
-    const fetchProducts = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            // Construir parámetros de búsqueda
-            const params = new URLSearchParams(searchParams);
-
-            // Asegurar parámetros mínimos
-            if (!params.get('page')) params.set('page', '1');
-            if (!params.get('limit')) params.set('limit', '20');
-
-            const response = await fetch(`/api/products?${params.toString()}`);
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const { data, pagination: paginationData } = await response.json();
-
-            // Verificar que la respuesta sea válida
-            if (!Array.isArray(data)) {
-                throw new Error('Formato de respuesta inválido');
-            }
-
-            setProducts(data);
-            setPagination(paginationData);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            setError(error.message || "No se pudieron cargar los productos");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const fetchProductsUseCase = new FetchProducts();
 
     useEffect(() => {
-        // Pequeño delay para evitar sobrecarga en cambios rápidos de filtros
-        const timer = setTimeout(fetchProducts, 300);
+        const timer = setTimeout(async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const params = new URLSearchParams(searchParams.toString());
+                if (!params.get('page')) params.set('page', '1');
+                if (!params.get('limit')) params.set('limit', '20');
+
+                const { data, pagination: paginationData } = await fetchProductsUseCase.execute(params.toString());
+
+                setProducts(data);
+                setPagination(paginationData);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                setError(error.message || 'No se pudieron cargar los productos');
+            } finally {
+                setLoading(false);
+            }
+        }, 300);
+
         return () => clearTimeout(timer);
     }, [searchParams]);
 
     const handlePageChange = (newPage) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         params.set('page', newPage);
         window.location.search = params.toString();
     };
 
-    if (loading) {
-        return (
-            <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner}></div>
-                <p>Cargando productos...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className={styles.errorContainer}>
-                <p className={styles.errorMessage}>{error}</p>
-                <button
-                    onClick={fetchProducts}
-                    className={styles.retryButton}
-                >
-                    Reintentar
-                </button>
-            </div>
-        );
-    }
-
     return (
         <>
             <Header />
-
             <main className={styles.productsPage}>
-                {/* Hero Section */}
                 <section className={styles.productsHero}>
                     <div className={styles.heroContent}>
                         <h1>Nuestra Colección Completa</h1>
@@ -103,13 +67,31 @@ export default function ProductsPage() {
                     </div>
                 </section>
 
-                {/* Filtros */}
-                <ProductFilter />
+                <Suspense fallback={<div>Loading filters...</div>}>
+                    <ProductFilter />
+                </Suspense>
 
-                {/* Grid de productos */}
-                <ProductGrid products={products} />
+                {loading ? (
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.loadingSpinner}></div>
+                        <p>Cargando productos...</p>
+                    </div>
+                ) : error ? (
+                    <div className={styles.errorContainer}>
+                        <p className={styles.errorMessage}>{error}</p>
+                        <button
+                            onClick={() => fetchProductsUseCase.execute(searchParams.toString())}
+                            className={styles.retryButton}
+                        >
+                            Reintentar
+                        </button>
+                    </div>
+                ) : (
+                    <Suspense fallback={<div>Loading products...</div>}>
+                        <ProductGrid products={products} />
+                    </Suspense>
+                )}
 
-                {/* Paginación */}
                 {pagination.totalPages > 1 && (
                     <div className={styles.pagination}>
                         <button
@@ -118,11 +100,9 @@ export default function ProductsPage() {
                         >
                             Anterior
                         </button>
-
                         <span>
               Página {pagination.currentPage} de {pagination.totalPages}
             </span>
-
                         <button
                             disabled={pagination.currentPage === pagination.totalPages}
                             onClick={() => handlePageChange(pagination.currentPage + 1)}
@@ -132,7 +112,6 @@ export default function ProductsPage() {
                     </div>
                 )}
 
-                {/* Newsletter */}
                 <section className={styles.newsletter}>
                     <h2>Recibe novedades y promociones</h2>
                     <div className={styles.newsletterForm}>
@@ -141,14 +120,19 @@ export default function ProductsPage() {
                             placeholder="Tu correo electrónico"
                             className={styles.newsletterInput}
                         />
-                        <button className={styles.newsletterButton}>
-                            Suscribirse
-                        </button>
+                        <button className={styles.newsletterButton}>Suscribirse</button>
                     </div>
                 </section>
             </main>
-
             <Footer />
         </>
+    );
+}
+
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={<div>Loading products page...</div>}>
+            <ProductsContent />
+        </Suspense>
     );
 }
