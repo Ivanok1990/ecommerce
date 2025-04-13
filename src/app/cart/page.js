@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,10 +10,10 @@ import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import styles from '@/app/styles/Checkout.module.css';
 
-// Añade esta línea para desactivar el prerenderizado estático
+// Force dynamic rendering for checkout (optional, review if static is feasible)
 export const dynamic = 'force-dynamic';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const { cart, totalPrice, clearCart } = useCart();
     const router = useRouter();
 
@@ -21,7 +21,7 @@ export default function CheckoutPage() {
     const taxes = totalPrice * TAX_RATE;
     const finalTotal = totalPrice + taxes;
 
-    // Estado del formulario
+    // Form state
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -38,13 +38,13 @@ export default function CheckoutPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
 
-    // Manejar cambios en el formulario
+    // Handle form input changes
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Validar formulario
+    // Validate form
     const validateForm = () => {
         const newErrors = {};
 
@@ -85,13 +85,14 @@ export default function CheckoutPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Manejar envío del formulario
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
 
         setIsSubmitting(true);
         try {
+            // Simulate API call (replace with actual order creation logic)
             await new Promise((resolve) => setTimeout(resolve, 2000));
             clearCart();
             setOrderSuccess(true);
@@ -170,11 +171,11 @@ export default function CheckoutPage() {
                                     <div className={styles.itemDetails}>
                                         <span className={styles.itemName}>{item.name}</span>
                                         <span className={styles.itemPrice}>
-                                            ${item.price.toFixed(2)} x {item.quantity}
-                                        </span>
+                      ${item.price.toFixed(2)} x {item.quantity}
+                    </span>
                                         <span className={styles.itemSubtotal}>
-                                            ${(item.price * item.quantity).toFixed(2)}
-                                        </span>
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
                                     </div>
                                 </motion.li>
                             ))}
@@ -186,7 +187,7 @@ export default function CheckoutPage() {
                             <span className={styles.totalValue}>${totalPrice.toFixed(2)}</span>
                         </div>
                         <div className={styles.totalRow}>
-                            <span className={styles.totalLabel}>Impuestos (16%):</span>
+                            <span className={styles.totalLabel}>Impuestos (15%):</span>
                             <span className={styles.totalValue}>${taxes.toFixed(2)}</span>
                         </div>
                         <div className={styles.totalRow}>
@@ -215,7 +216,76 @@ export default function CheckoutPage() {
                                 <span className={styles.errorMessage}>{errors.fullName}</span>
                             )}
                         </div>
-                        {/* Resto de los campos del formulario... */}
+                        <div className={styles.formGroup}>
+                            <label htmlFor="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                className={errors.email ? styles.inputError : ''}
+                            />
+                            {errors.email && (
+                                <span className={styles.errorMessage}>{errors.email}</span>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="address">Dirección</label>
+                            <input
+                                type="text"
+                                id="address"
+                                name="address"
+                                value={formData.address}
+                                onChange={handleInputChange}
+                                className={errors.address ? styles.inputError : ''}
+                            />
+                            {errors.address && (
+                                <span className={styles.errorMessage}>{errors.address}</span>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="city">Ciudad</label>
+                            <input
+                                type="text"
+                                id="city"
+                                name="city"
+                                value={formData.city}
+                                onChange={handleInputChange}
+                                className={errors.city ? styles.inputError : ''}
+                            />
+                            {errors.city && (
+                                <span className={styles.errorMessage}>{errors.city}</span>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="postalCode">Código postal</label>
+                            <input
+                                type="text"
+                                id="postalCode"
+                                name="postalCode"
+                                value={formData.postalCode}
+                                onChange={handleInputChange}
+                                className={errors.postalCode ? styles.inputError : ''}
+                            />
+                            {errors.postalCode && (
+                                <span className={styles.errorMessage}>{errors.postalCode}</span>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="phone">Teléfono</label>
+                            <input
+                                type="text"
+                                id="phone"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                className={errors.phone ? styles.inputError : ''}
+                            />
+                            {errors.phone && (
+                                <span className={styles.errorMessage}>{errors.phone}</span>
+                            )}
+                        </div>
                     </div>
 
                     <div className={styles.formSection}>
@@ -235,7 +305,36 @@ export default function CheckoutPage() {
                                 <span className={styles.errorMessage}>{errors.cardNumber}</span>
                             )}
                         </div>
-                        {/* Resto de los campos de pago... */}
+                        <div className={styles.formGroup}>
+                            <label htmlFor="expiry">Fecha de expiración (MM/AA)</label>
+                            <input
+                                type="text"
+                                id="expiry"
+                                name="expiry"
+                                value={formData.expiry}
+                                onChange={handleInputChange}
+                                className={errors.expiry ? styles.inputError : ''}
+                                placeholder="MM/AA"
+                            />
+                            {errors.expiry && (
+                                <span className={styles.errorMessage}>{errors.expiry}</span>
+                            )}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="cvv">CVV</label>
+                            <input
+                                type="text"
+                                id="cvv"
+                                name="cvv"
+                                value={formData.cvv}
+                                onChange={handleInputChange}
+                                className={errors.cvv ? styles.inputError : ''}
+                                placeholder="123"
+                            />
+                            {errors.cvv && (
+                                <span className={styles.errorMessage}>{errors.cvv}</span>
+                            )}
+                        </div>
                     </div>
 
                     {errors.submit && (
@@ -258,5 +357,13 @@ export default function CheckoutPage() {
             </Link>
             <Footer />
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={<div>Loading checkout...</div>}>
+            <CheckoutContent />
+        </Suspense>
     );
 }
