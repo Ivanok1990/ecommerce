@@ -1,128 +1,163 @@
-.cartContainer {
-    max-width: 1000px;
-    margin: 3rem auto;
-    padding: 0 1.5rem;
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f1f1; /* Soft pink background */
-    border-radius: 12px;
+
+    /* Page Wrapper for full layout */
+.pageWrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #FFF9FB; /* Soft pink background consistent with Products.module.css */
 }
 
+/* Main content container */
+.cartContainer {
+    max-width: 1000px;
+    margin: 7rem auto 3rem; /* Added top margin to avoid header overlap */
+    padding: 1.5rem;
+    font-family: 'Arial', sans-serif;
+    background-color: #fff; /* White background to match screenshot */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    flex: 1; /* Ensure main content takes available space */
+}
+
+/* Cart Title */
 .cartTitle {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #2d2d2d;
+    color: #6D4C5B; /* Consistent with Products.module.css */
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border-bottom: 2px solid #ff6f91;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #E75480; /* Pink border to match brand */
     padding-bottom: 0.5rem;
 }
 
+/* Empty Cart State */
 .emptyCart {
     text-align: center;
-    font-size: 1.3rem;
-    color: #666;
+    font-size: 1.5rem;
+    color: #6D4C5B;
     padding: 3rem;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin: 7rem auto 3rem; /* Match cartContainer margins */
+    max-width: 1000px;
 }
 
+/* Shop Link */
 .shopLink {
     display: inline-block;
     margin-top: 1rem;
     padding: 0.75rem 1.5rem;
-    background-color: #ff6f91;
-    color: #fff;
+    background-color: #FFD1DC; /* Softer pink to match screenshot */
+    color: #6D4C5B;
     text-decoration: none;
-    border-radius: 5px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
+    border-radius: 30px; /* Rounded to match Products.module.css */
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .shopLink:hover {
-    background-color: #e65b7e;
+    background-color: #E75480;
+    color: #fff;
+    transform: translateY(-2px);
 }
 
+/* Cart Content Layout */
+.cartContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Cart Items List */
 .cartList {
     list-style: none;
     padding: 0;
     margin-bottom: 2rem;
 }
 
+/* Cart Item */
 .cartItem {
     display: grid;
-    grid-template-columns: 100px 2fr 1fr 100px;
+    grid-template-columns: 80px 2fr 100px 80px; /* Adjusted to match screenshot */
     align-items: center;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #FFF9FB; /* Soft pink background */
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .cartItem:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Item Image */
 .itemImage {
     display: flex;
     align-items: center;
 }
 
+/* Product Image */
 .productImage {
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid #eee;
 }
 
+/* Item Details */
 .itemDetails {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    font-size: 1.1rem;
-    color: #333;
+    font-size: 1rem;
+    color: #6D4C5B;
 }
 
+/* Item Name */
 .itemName {
     font-weight: 600;
-    font-size: 1.2rem;
-    color: #2d2d2d;
+    font-size: 1.1rem;
+    color: #6D4C5B;
 }
 
+/* Item Price */
 .itemPrice {
-    color: #ff6f91; /* Glamour Lips pink */
+    color: #E75480; /* Brand pink */
     font-weight: 500;
 }
 
+/* Item Subtotal */
 .itemSubtotal {
-    font-size: 0.95rem;
-    color: #666;
+    font-size: 0.9rem;
+    color: #8B5D5D;
 }
 
+/* Quantity Controls */
 .quantityControls {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .quantityButton {
-    background-color: #ff6f91;
-    color: #fff;
+    background-color: #E6E6FA; /* Light lavender to match screenshot */
+    color: #6D4C5B;
     border: none;
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    font-size: 1.2rem;
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .quantityButton:hover {
-    background-color: #e65b7e;
+    background-color: #FFD1DC;
     transform: scale(1.1);
 }
 
@@ -133,17 +168,18 @@
 }
 
 .quantityDisplay {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 500;
-    color: #333;
+    color: #6D4C5B;
     min-width: 20px;
     text-align: center;
 }
 
+/* Remove Button */
 .removeButton {
     background-color: transparent;
-    color: #ff4d4f;
-    border: 1px solid #ff4d4f;
+    color: #E75480;
+    border: 1px solid #E75480;
     border-radius: 5px;
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
@@ -152,84 +188,111 @@
 }
 
 .removeButton:hover {
-    background-color: #ff4d4f;
+    background-color: #E75480;
     color: #fff;
 }
 
+/* Cart Summary */
 .cartSummary {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 1rem;
     padding: 1.5rem;
-    background-color: #fff;
+    background-color: #FFF9FB;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.clearButton {
-    background-color: #666;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.clearButton:hover {
-    background-color: #555;
-}
-
+/* Total Section */
 .totalSection {
     display: flex;
-    gap: 1rem;
-    font-size: 1.3rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
 }
 
 .totalLabel {
     font-weight: 600;
-    color: #333;
+    color: #6D4C5B;
+}
+
+.totalValue {
+    color: #8B5D5D;
 }
 
 .totalPrice {
     font-weight: 700;
-    color: #ff6f91;
+    color: #E75480;
 }
 
-.checkoutButton {
-    background-color: #ff6f91;
+/* Clear Button */
+.clearButton {
+    background-color: #8B5D5D; /* Darker color to match screenshot */
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.clearButton:hover {
+    background-color: #6D4C5B;
+    transform: translateY(-2px);
+}
+
+/* Checkout Button */
+.checkoutButton {
+    background-color: #FFD1DC; /* Softer pink to match screenshot */
+    color: #6D4C5B;
+    border: none;
+    border-radius: 30px;
     padding: 1rem 2rem;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .checkoutButton:hover {
-    background-color: #e65b7e;
-    transform: scale(1.05);
+    background-color: #E75480;
+    color: #fff;
+    transform: translateY(-2px);
 }
 
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #6D4C5B;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
     .cartContainer {
-        padding: 0 1rem;
+        margin-top: 6rem; /* Adjust for smaller header */
+        padding: 1rem;
     }
 
     .cartTitle {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .cartItem {
         grid-template-columns: 80px 1fr;
         grid-template-areas:
-            "image details"
-            "image quantity"
-            "image remove";
+      "image details"
+      "image quantity"
+      "image remove";
         gap: 1rem;
     }
 
@@ -263,7 +326,8 @@
 
 @media (max-width: 480px) {
     .cartContainer {
-        padding: 0 0.5rem;
+        margin-top: 5rem;
+        padding: 0.5rem;
     }
 
     .cartTitle {
@@ -280,9 +344,9 @@
     }
 
     .quantityButton {
-        width: 30px;
-        height: 30px;
-        font-size: 1rem;
+        width: 25px;
+        height: 25px;
+        font-size: 0.9rem;
     }
 
     .removeButton {

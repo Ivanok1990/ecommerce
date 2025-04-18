@@ -1,26 +1,26 @@
 // src/app/components/ProductList.js
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import styles from '@/app/styles/ProductList.module.css';
+import Image from 'next/image';
+import styles from '@/app/styles/Products.module.css';
 
-export default function ProductList({ products = [], limit }) {
+const ProductList = ({ products = [], limit }) => {
     const displayedProducts = limit ? products.slice(0, limit) : products;
 
-    if (!displayedProducts.length) {
+    if (displayedProducts.length === 0) {
         return <div className={styles.noProducts}>No hay productos disponibles</div>;
     }
 
     return (
-        <div className={styles.productGrid}>
-            {displayedProducts.map((product) => (
-                <div key={product.id} className={styles.productCard}>
-                    <Link href={`/products/${product.id}`}>
+        <div className={styles.list}>
+            {displayedProducts.map(product => (
+                <article key={product.id} className={styles.listItem}>
+                    <Link href={`/products/${product.id}`} className={styles.productLink}>
                         <div className={styles.imageContainer}>
                             <Image
                                 src={product.image || '/images/default-product.jpg'}
-                                alt={product.name || 'Producto'}
+                                alt={product.name}
                                 width={300}
                                 height={300}
                                 className={styles.productImage}
@@ -32,26 +32,31 @@ export default function ProductList({ products = [], limit }) {
                                 <span className={styles.outOfStock}>Agotado</span>
                             )}
                         </div>
-                        <h3>{product.name || 'Producto'}</h3>
-                        <p className={styles.productDescription}>
-                            {product.description || 'Descripción no disponible'}
-                        </p>
-                        <div className={styles.priceContainer}>
-              <span className={styles.price}>
-                ${product.price ? product.price.toFixed(2) : '0.00'}
-              </span>
-                            <span
-                                className={product.stock > 0 ? styles.inStock : styles.outOfStock}
-                            >
-                {product.stock > 0 ? 'Disponible' : 'Agotado'}
-              </span>
+                        <div className={styles.productInfo}>
+                            <h3>{product.name}</h3>
+                            <p className={styles.description}>
+                                {product.description || 'Descripción no disponible'}
+                            </p>
+                            <div className={styles.priceInfo}>
+                                <span className={styles.price}>
+                                    ${product.price?.toFixed(2) || '0.00'}
+                                </span>
+                                <span className={product.stock > 0 ? styles.inStock : styles.outOfStock}>
+                                    {product.stock > 0 ? 'Disponible' : 'Agotado'}
+                                </span>
+                            </div>
                         </div>
                     </Link>
-                    <Link href={`/products/${product.id}`} className={styles.addToCart}>
+                    <Link
+                        href={`/products/${product.id}`}
+                        className={styles.detailButton}
+                    >
                         Ver detalles
                     </Link>
-                </div>
+                </article>
             ))}
         </div>
     );
-}
+};
+
+export default ProductList;

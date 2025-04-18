@@ -1,140 +1,318 @@
-// src/app/api/products/route.js
-import { connectDB, query } from '@/app/lib/db';
-import { z } from 'zod';
+const products = [
+    {
+        id: 1,
+        name: "Labial Mate Rojo Pasión",
+        description: "Labial de larga duración con acabado mate y pigmentación intensa",
+        price: 18.99,
+        image: "/images/producto1.jpg",
+        stock: 0,
+        colors: ["#FF0000", "#CC0000"],
+        category: "mate",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Resistente al agua",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 2,
+        name: "Gloss Nude Natural",
+        description: "Gloss hidratante con efecto volumizador y acabado brillante",
+        price: 15.50,
+        image: "/images/producto2.jpg",
+        stock: 12,
+        colors: ["#F5D5C0", "#E7BC91"],
+        category: "gloss",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Resistente al agua",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 3,
+        name: "Labial Líquido Duradero",
+        description: "Labial líquido que no se transfiere y dura hasta 12 horas",
+        price: 22.75,
+        image: "/images/producto3.jpg",
+        stock: 8,
+        colors: ["#C71585", "#DB7093"],
+        category: "liquido",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Resistente al agua",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 4,
+        name: "Bálsamo Labial Hidratante",
+        description: "Bálsamo nutritivo con manteca de karité para labios suaves y protegidos",
+        price: 12.99,
+        image: "/images/producto4.jpg",
+        stock: 20,
+        colors: ["#FFC0CB", "#FFDAB9"],
+        category: "bálsamo",
+        details: [
+            "Hidratación de larga duración",
+            "Fórmula vegana y cruelty-free",
+            "Con vitamina E y manteca de karité",
+            "Peso neto: 4g"
+        ]
+    },
+    {
+        id: 5,
+        name: "Labial Mate Vino Intenso",
+        description: "Labial de acabado mate en tono vino perfecto para eventos especiales",
+        price: 19.50,
+        image: "/images/producto5.jpg",
+        stock: 5,
+        colors: ["#8B0000", "#800020"],
+        category: "mate",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Acabado ultra mate",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 6,
+        name: "Gloss Rosa Cristal",
+        description: "Gloss ligero con partículas brillantes para un efecto luminoso natural",
+        price: 16.25,
+        image: "/images/producto6.jpg",
+        stock: 10,
+        colors: ["#FFC0CB", "#FFB6C1"],
+        category: "gloss",
+        details: [
+            "Efecto 3D volumizador",
+            "Fórmula vegana y cruelty-free",
+            "No pegajoso",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 7,
+        name: "Labial Líquido Coral Vibrante",
+        description: "Labial líquido de color coral que ofrece un look fresco y veraniego",
+        price: 21.00,
+        image: "/images/producto7.jpg",
+        stock: 7,
+        colors: ["#FF7F50", "#FFA07A"],
+        category: "liquido",
+        details: [
+            "Duración hasta 10 horas",
+            "Fórmula vegana y cruelty-free",
+            "Resistente a roces y bebidas",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 8,
+        name: "Bálsamo Color Caramelo",
+        description: "Bálsamo hidratante con un sutil toque de color caramelo",
+        price: 13.50,
+        image: "/images/producto8.jpg",
+        stock: 15,
+        colors: ["#D2B48C", "#C68642"],
+        category: "bálsamo",
+        details: [
+            "Hidratación profunda",
+            "Aroma dulce natural",
+            "Con manteca de cacao",
+            "Peso neto: 4g"
+        ]
+    },
+    {
+        id: 9,
+        name: "Labial Mate Nude Elegante",
+        description: "Labial mate de tono nude para un look sofisticado y versátil",
+        price: 18.25,
+        image: "/images/producto9.jpg",
+        stock: 9,
+        colors: ["#D2B48C", "#CBB195"],
+        category: "mate",
+        details: [
+            "Duración hasta 10 horas",
+            "Fórmula vegana y cruelty-free",
+            "Textura ligera y cremosa",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 10,
+        name: "Gloss Dorado Luminoso",
+        description: "Gloss con destellos dorados para darle un toque glamuroso a tus labios",
+        price: 17.99,
+        image: "/images/producto10.jpg",
+        stock: 6,
+        colors: ["#FFD700", "#FFF8DC"],
+        category: "gloss",
+        details: [
+            "Brillo duradero",
+            "Fórmula vegana y cruelty-free",
+            "Apto para usar solo o sobre otro labial",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 11,
+        name: "Labial Líquido Rosa Vintage",
+        description: "Labial líquido en un elegante tono rosa viejo, ideal para el día a día",
+        price: 22.00,
+        image: "/images/producto11.jpg",
+        stock: 4,
+        colors: ["#C08081", "#D8B2B2"],
+        category: "liquido",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Secado rápido",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 12,
+        name: "Bálsamo Refrescante Menta",
+        description: "Bálsamo labial refrescante con extracto natural de menta",
+        price: 11.75,
+        image: "/images/producto12.jpg",
+        stock: 18,
+        colors: ["#98FB98", "#90EE90"],
+        category: "bálsamo",
+        details: [
+            "Sensación refrescante inmediata",
+            "Fórmula vegana y cruelty-free",
+            "Protección contra el agrietamiento",
+            "Peso neto: 4g"
+        ]
+    },
+    {
+        id: 13,
+        name: "Labial Mate Rosa Fucsia",
+        description: "Labial mate de alta cobertura en vibrante tono rosa fucsia",
+        price: 19.75,
+        image: "/images/producto13.jpg",
+        stock: 11,
+        colors: ["#FF69B4", "#FF1493"],
+        category: "mate",
+        details: [
+            "Duración hasta 12 horas",
+            "Fórmula vegana y cruelty-free",
+            "Pigmentación extrema",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 14,
+        name: "Gloss Melocotón Brillante",
+        description: "Gloss hidratante con un delicado tono melocotón y acabado radiante",
+        price: 16.75,
+        image: "/images/producto14.jpg",
+        stock: 13,
+        colors: ["#FFDAB9", "#FFE4B5"],
+        category: "gloss",
+        details: [
+            "Brillo espejo de larga duración",
+            "Fórmula vegana y cruelty-free",
+            "Textura ligera y no pegajosa",
+            "Peso neto: 5ml"
+        ]
+    },
+    {
+        id: 15,
+        name: "Labial Líquido Marrón Chocolate",
+        description: "Labial líquido de alta fijación en un tono marrón intenso y elegante",
+        price: 23.50,
+        image: "/images/producto15.jpg",
+        stock: 5,
+        colors: ["#5C4033", "#7B3F00"],
+        category: "liquido",
+        details: [
+            "Duración extrema hasta 16 horas",
+            "Fórmula vegana y cruelty-free",
+            "No transfiere y resistente al agua",
+            "Peso neto: 5ml"
+        ]
+    },
 
-const searchParamsSchema = z.object({
-    q: z.string().trim().max(100).optional(),
-    category: z.string().trim().optional().default('todos'),
-    color: z.string().trim().optional(),
-    minPrice: z.number().min(0).max(1000).optional().default(0),
-    maxPrice: z.number().min(0).max(1000).optional().default(100),
-    page: z.number().int().min(1).optional().default(1),
-    limit: z.number().int().min(1).max(100).optional().default(20),
-    sortBy: z.enum(['price', 'name', 'created_at']).optional().default('created_at'),
-    sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-}).refine((data) => data.minPrice <= data.maxPrice, {
-    message: 'El precio mínimo debe ser menor o igual al máximo',
-});
+
+];
 
 export async function GET(request) {
-    try {
-        await connectDB();
-        const { searchParams } = new URL(request.url);
+    const { searchParams, pathname } = new URL(request.url);
 
-        const params = {
-            q: searchParams.get('q') || '',
-            category: searchParams.get('category') || 'todos',
-            color: searchParams.get('color') || '',
-            minPrice: parseFloat(searchParams.get('minPrice')) || 0,
-            maxPrice: parseFloat(searchParams.get('maxPrice')) || 100,
-            page: parseInt(searchParams.get('page')) || 1,
-            limit: parseInt(searchParams.get('limit')) || 20,
-            sortBy: searchParams.get('sortBy') || 'created_at',
-            sortOrder: searchParams.get('sortOrder') || 'desc',
-        };
+    const idMatch = pathname.match(/\/api\/products\/(\d+)/);
+    if (idMatch) {
+        const id = parseInt(idMatch[1]);
+        const product = products.find(p => p.id === id);
 
-        const validatedParams = searchParamsSchema.parse(params);
-
-        // Build WHERE clause
-        let whereClauses = ['p.price BETWEEN ? AND ?'];
-        let queryParams = [validatedParams.minPrice, validatedParams.maxPrice];
-
-        if (validatedParams.q) {
-            whereClauses.push('(p.name LIKE ? OR p.description LIKE ?)');
-            queryParams.push(`%${validatedParams.q}%`, `%${validatedParams.q}%`);
-        }
-
-        if (validatedParams.category !== 'todos') {
-            whereClauses.push('c.name = ?');
-            queryParams.push(validatedParams.category);
-        }
-
-        if (validatedParams.color) {
-            whereClauses.push('pc.color = ?');
-            queryParams.push(validatedParams.color);
-        }
-
-        const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-        // Build SQL query
-        const sql = `
-      SELECT DISTINCT p.id, p.name, p.description, p.price, p.image, p.stock, 
-             c.name AS category,
-             GROUP_CONCAT(DISTINCT pc.color) AS colors,
-             GROUP_CONCAT(DISTINCT pd.detail) AS details
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN product_colors pc ON p.id = pc.product_id
-      LEFT JOIN product_details pd ON p.id = pd.product_id
-      ${whereClause}
-      GROUP BY p.id
-      ORDER BY p.${validatedParams.sortBy} ${validatedParams.sortOrder.toUpperCase()}
-      LIMIT ? OFFSET ?;
-    `;
-
-        const countSql = `
-      SELECT COUNT(DISTINCT p.id) as total
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN product_colors pc ON p.id = pc.product_id
-      LEFT JOIN product_details pd ON p.id = pd.product_id
-      ${whereClause};
-    `;
-
-        queryParams.push(validatedParams.limit, (validatedParams.page - 1) * validatedParams.limit);
-
-        // Execute queries
-        const products = await query(sql, queryParams);
-        const [{ total }] = await query(countSql, queryParams.slice(0, -2));
-
-        // Format results
-        const formattedProducts = products.map((product) => ({
-            id: product.id,
-            name: product.name || 'Unnamed Product',
-            description: product.description || '',
-            price: parseFloat(product.price) || 0,
-            image: product.image || '/images/default-product.jpg',
-            stock: product.stock || 0,
-            colors: product.colors ? product.colors.split(',') : [],
-            details: product.details ? product.details.split(',') : [],
-            category: product.category || 'Sin categoría',
-        }));
-
-        return new Response(
-            JSON.stringify({
-                success: true,
-                data: formattedProducts,
-                pagination: {
-                    total,
-                    totalPages: Math.ceil(total / validatedParams.limit),
-                    currentPage: validatedParams.page,
-                    perPage: validatedParams.limit,
+        if (!product) {
+            return new Response(JSON.stringify({ error: 'Producto no encontrado' }), {
+                status: 404,
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-            }),
-            {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
-    } catch (error) {
-        console.error('Error en /api/products:', {
-            message: error.message,
-            stack: error.stack,
-            params: request.url,
+            });
+        }
+
+        return new Response(JSON.stringify(product), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
-        return new Response(
-            JSON.stringify({
-                success: false,
-                error:
-                    error instanceof z.ZodError
-                        ? 'Parámetros inválidos'
-                        : 'Error del servidor',
-                details: error.message,
-            }),
-            {
-                status: error instanceof z.ZodError ? 400 : 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
+    }
+
+    // Si no hay ID, filtrar lista completa
+    const category = searchParams.get('category');
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    const inStock = searchParams.get('inStock');
+    const searchTerm = searchParams.get('search');
+
+    let filteredProducts = [...products];
+
+    if (category) {
+        filteredProducts = filteredProducts.filter(product =>
+            product.category.toLowerCase() === category.toLowerCase()
         );
     }
+
+    if (minPrice) {
+        filteredProducts = filteredProducts.filter(product =>
+            product.price >= parseFloat(minPrice)
+        );
+    }
+
+    if (maxPrice) {
+        filteredProducts = filteredProducts.filter(product =>
+            product.price <= parseFloat(maxPrice)
+        );
+    }
+
+    if (inStock === 'true') {
+        filteredProducts = filteredProducts.filter(product =>
+            product.stock > 0
+        );
+    }
+
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filteredProducts = filteredProducts.filter(product =>
+            product.name.toLowerCase().includes(term) ||
+            product.description.toLowerCase().includes(term)
+        );
+    }
+
+    return new Response(JSON.stringify(filteredProducts), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 }

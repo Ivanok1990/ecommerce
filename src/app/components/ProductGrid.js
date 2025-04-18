@@ -1,114 +1,54 @@
-// src/app/components/ProductGrid.js
 'use client';
 
-import { useState, Suspense } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
+import ProductCard from './ProductCard';
 import ProductDetailModal from './ProductDetailModal';
-import styles from '@/app/styles/Products.module.css';
 import { useCart } from '@/app/context/CartContext';
+import styles from '@/app/styles/Products.module.css';
 
-function ProductGridContent({ products = [] }) {
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [quantity, setQuantity] = useState(1);
-    const { addToCart } = useCart();
+const ProductGrid = ({ products = [] }) => {
+  const { addToCart } = useCart();
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-    const validProducts = Array.isArray(products)
-        ? products.filter((product) => product && product.id && product.name)
-        : [];
+  const validProducts = products.filter(
+    (product) => product?.id && product?.name
+  );
 
-    const handleProductClick = (product, e) => {
-        if (e.target.tagName !== 'BUTTON') {
-            setSelectedProduct(product);
-        }
-    };
-
-    const handleCloseModal = () => {
-        setSelectedProduct(null);
-        setQuantity(1);
-    };
-
-    const handleAddToCart = (product) => {
-        addToCart(product, quantity);
-        setSelectedProduct(null);
-        setQuantity(1);
-    };
-
+  if (validProducts.length === 0) {
     return (
-        <>
-            {validProducts.length === 0 ? (
-                <div className={styles.noResults}>
-                    No se encontraron productos con esos filtros.
-                </div>
-            ) : (
-                <div className={styles.productGrid}>
-                    {validProducts.map((product) => (
-                        <div
-                            key={product.id}
-                            className={styles.productCard}
-                            onClick={(e) => handleProductClick(product, e)}
-                        >
-                            <div className={styles.imageContainer}>
-                                <Image
-                                    src={product.image || '/images/default-product.jpg'}
-                                    alt={product.name || 'Producto sin nombre'}
-                                    width={300}
-                                    height={300}
-                                    className={styles.productImage}
-                                    priority
-                                />
-                                {product.stock < 5 && product.stock > 0 && (
-                                    <span className={styles.lowStock}>¡Últimas unidades!</span>
-                                )}
-                                {product.stock === 0 && (
-                                    <span className={styles.outOfStockBadge}>Agotado</span>
-                                )}
-                            </div>
-                            <h3>{product.name || 'Producto'}</h3>
-                            <p className={styles.productDescription}>
-                                {product.description || 'Descripción no disponible'}
-                            </p>
-                            <div className={styles.priceContainer}>
-                <span className={styles.price}>
-                  ${product.price ? Number(product.price).toFixed(2) : '0.00'}
-                </span>
-                                <span
-                                    className={product.stock > 0 ? styles.inStock : styles.outOfStock}
-                                >
-                  {product.stock > 0 ? 'Disponible' : 'Agotado'}
-                </span>
-                            </div>
-                            <button
-                                className={styles.quickViewButton}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedProduct(product);
-                                }}
-                                disabled={product.stock === 0}
-                            >
-                                Vista rápida
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {selectedProduct && (
-                <ProductDetailModal
-                    product={selectedProduct}
-                    onClose={handleCloseModal}
-                    onAddToCart={handleAddToCart}
-                    quantity={quantity}
-                    setQuantity={setQuantity}
-                />
-            )}
-        </>
+      <div className={styles.noProducts}>
+        No se encontraron productos.
+      </div>
     );
-}
+  }
 
-export default function ProductGrid({ products }) {
-    return (
-        <Suspense fallback={<div>Loading product grid...</div>}>
-            <ProductGridContent products={products} />
-        </Suspense>
-    );
-}
+  const handleAddToCart = (product, quantity) => {
+    console.log(`Adding ${quantity} of ${product.name} to cart`); // Debugging
+    addToCart(product, quantity);
+    setSelectedProduct(null); // Close the modal after adding
+  };
+
+  return (
+    <>
+      <div className={styles.productGrid}>
+        {validProducts.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onClick={() => setSelectedProduct(product)}
+          />
+        ))}
+      </div>
+
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      )}
+    </>
+  );
+};
+
+export default ProductGrid;

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "boxicons": "^2.1.4",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.6.3",
     "mysql": "^2.18.1",
     "mysql2": "^3.14.0",
@@ -18,6 +19,7 @@
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-toastify": "^11.0.5",
     "sequelize": "^6.37.7",
     "zod": "^3.24.2"
   }

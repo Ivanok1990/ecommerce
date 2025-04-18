@@ -1,143 +1,140 @@
-// src/app/components/ProductFilter.js
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import styles from '@/app/styles/Products.module.css';
 
-function ProductFilterContent() {
+const CATEGORIES = [
+    { id: 'todos', name: 'Todos' },
+    { id: 'mate', name: 'Labiales Mate' },
+    { id: 'gloss', name: 'Gloss Brillante' },
+    { id: 'liquido', name: 'Larga Duración' },
+    { id: 'bálsamo', name: 'Bálsamos' },
+];
+
+const COLORS = [
+    { code: '#FF0000', name: 'Rojo' },
+    { code: '#C71585', name: 'Rosa Oscuro' },
+    { code: '#FF69B4', name: 'Rosa Brillante' },
+    { code: '#F5D5C0', name: 'Nude' },
+    { code: '#8B0000', name: 'Vino' },
+    { code: '#FFD700', name: 'Dorado' },
+];
+
+const ProductFilter = () => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const [filters, setFilters] = useState({
+    const initialFilters = {
         category: searchParams.get('category') || 'todos',
         color: searchParams.get('color') || '',
         minPrice: parseInt(searchParams.get('minPrice')) || 0,
         maxPrice: parseInt(searchParams.get('maxPrice')) || 50,
-    });
+    };
 
-    const categories = [
-        { id: 'todos', name: 'Todos' },
-        { id: 'mate', name: 'Labiales Mate' },
-        { id: 'gloss', name: 'Gloss Brillante' },
-        { id: 'liquido', name: 'Larga Duración' },
-    ];
+    const [filters, setFilters] = useState(initialFilters);
 
-    const colors = [
-        { code: '#FF0000', name: 'Rojo' },
-        { code: '#C71585', name: 'Rosa Oscuro' },
-        { code: '#FF69B4', name: 'Rosa Brillante' },
-        { code: '#F5D5C0', name: 'Nude' },
-        { code: '#8B5D5D', name: 'Marrón Rosado' },
-    ];
+    const updateUrlParams = (newFilters) => {
+        const params = new URLSearchParams();
+        if (newFilters.category !== 'todos') params.set('category', newFilters.category);
+        if (newFilters.color) params.set('color', newFilters.color);
+        if (newFilters.minPrice > 0) params.set('minPrice', newFilters.minPrice);
+        if (newFilters.maxPrice < 50) params.set('maxPrice', newFilters.maxPrice);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    };
 
     const handleFilterChange = (filterType, value) => {
         const newFilters = { ...filters, [filterType]: value };
         setFilters(newFilters);
-
-        const params = new URLSearchParams();
-        if (newFilters.category && newFilters.category !== 'todos') {
-            params.set('category', newFilters.category);
-        }
-        if (newFilters.color) {
-            params.set('color', newFilters.color);
-        }
-        if (newFilters.minPrice > 0) {
-            params.set('minPrice', newFilters.minPrice);
-        }
-        if (newFilters.maxPrice < 50) {
-            params.set('maxPrice', newFilters.maxPrice);
-        }
-
-        router.replace(`${pathname}?${params.toString()}`);
+        updateUrlParams(newFilters);
     };
 
     const resetFilters = () => {
-        setFilters({
+        const defaultFilters = {
             category: 'todos',
             color: '',
             minPrice: 0,
             maxPrice: 50,
-        });
-        router.replace(pathname);
+        };
+        setFilters(defaultFilters);
+        router.replace(pathname, { scroll: false });
     };
 
     return (
-        <div className={styles.filterSection}>
-            <div className={styles.filterHeader}>
+        <aside className={styles.filterSection}>
+            <header>
                 <h2>Filtrar Productos</h2>
                 <button onClick={resetFilters} className={styles.resetButton}>
                     Limpiar Filtros
                 </button>
-            </div>
+            </header>
 
-            <div className={styles.filterGroup}>
+            <section className={styles.filterGroup}>
                 <h3>Categorías</h3>
                 <div className={styles.categoryFilters}>
-                    {categories.map((category) => (
+                    {CATEGORIES.map((category) => (
                         <button
                             key={category.id}
-                            className={`${styles.filterButton} ${filters.category === category.id ? styles.activeFilter : ''}`}
+                            className={`${styles.filterButton} ${
+                                filters.category === category.id ? styles.active : ''
+                            }`}
                             onClick={() => handleFilterChange('category', category.id)}
+                            aria-label={`Filtrar por categoría ${category.name}`}
                         >
                             {category.name}
                         </button>
                     ))}
                 </div>
-            </div>
+            </section>
 
-            <div className={styles.filterGroup}>
+            <section className={styles.filterGroup}>
                 <h3>Colores</h3>
                 <div className={styles.colorFilters}>
-                    {colors.map((color) => (
+                    {COLORS.map((color) => (
                         <button
                             key={color.code}
-                            className={`${styles.colorButton} ${filters.color === color.code ? styles.activeColor : ''}`}
+                            className={`${styles.colorButton} ${
+                                filters.color === color.code ? styles.active : ''
+                            }`}
                             style={{ backgroundColor: color.code }}
-                            aria-label={`Filtrar por color ${color.name}`}
                             onClick={() => handleFilterChange('color', color.code)}
+                            aria-label={`Filtrar por color ${color.name}`}
                             title={color.name}
                         />
                     ))}
                 </div>
-            </div>
+            </section>
 
-            <div className={styles.filterGroup}>
+            <section className={styles.filterGroup}>
                 <h3>Rango de Precio</h3>
-                <div className={styles.priceRangeValues}>
+                <div className={styles.priceRange}>
                     <span>${filters.minPrice}</span>
                     <span>${filters.maxPrice}</span>
                 </div>
-                <div className={styles.priceSliderContainer}>
+                <div>
                     <input
                         type="range"
                         min="0"
                         max="50"
-                        step="1"
                         value={filters.minPrice}
                         onChange={(e) => handleFilterChange('minPrice', parseInt(e.target.value))}
                         className={styles.priceSlider}
+                        aria-label="Precio mínimo"
                     />
                     <input
                         type="range"
                         min="0"
                         max="50"
-                        step="1"
                         value={filters.maxPrice}
                         onChange={(e) => handleFilterChange('maxPrice', parseInt(e.target.value))}
                         className={styles.priceSlider}
+                        aria-label="Precio máximo"
                     />
                 </div>
-            </div>
-        </div>
+            </section>
+        </aside>
     );
-}
+};
 
-export default function ProductFilter() {
-    return (
-        <Suspense fallback={<div>Loading filters...</div>}>
-            <ProductFilterContent />
-        </Suspense>
-    );
-}
+export default ProductFilter;

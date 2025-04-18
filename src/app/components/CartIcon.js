@@ -9,6 +9,8 @@ import 'boxicons/css/boxicons.min.css';
 export default function CartIcon() {
     const { totalItems } = useCart();
 
+    console.log('Total items:', totalItems); // Debugging
+
     return (
         <Link href="/cart" className={styles.cartLink}>
             <i className="bx bx-cart-alt"></i>
