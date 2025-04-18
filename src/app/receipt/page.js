@@ -1,30 +1,36 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import styles from '@/app/styles/Cart.module.css';
-import { Suspense } from 'react';
 
+// Componente principal que usa useSearchParams
 function ReceiptContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Parse order details from query parameters
   const order = JSON.parse(searchParams.get('order') || '{}');
-  const { purchaseCode, items = [], subtotal = 0, taxes = 0, total = 0, fullName = '' } = order;
+  const {
+    purchaseCode,
+    items = [],
+    subtotal = 0,
+    taxes = 0,
+    total = 0,
+    fullName = ''
+  } = order;
 
   useEffect(() => {
     if (!purchaseCode || !items.length) {
-      // If no order details, redirect to cart
       router.push('/cart');
     }
   }, [purchaseCode, items, router]);
 
-  // Animation variants for the "Felicidades" message
+  // Animation variants
   const congratsVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
@@ -51,6 +57,7 @@ function ReceiptContent() {
           >
             🎉 Felicidades {fullName || 'Cliente'}, se realizó tu compra
           </motion.h1>
+
           <p style={{ fontSize: '1.2rem', color: '#6D4C5B', marginBottom: '2rem' }}>
             Código de compra: <strong>{purchaseCode || 'N/A'}</strong>
           </p>
@@ -58,6 +65,7 @@ function ReceiptContent() {
           <h2 style={{ color: '#6D4C5B', marginBottom: '1.5rem' }}>
             Detalles de tu pedido
           </h2>
+
           <div className={styles.cartContent}>
             <ul className={styles.cartList}>
               {items.map((item) => (
@@ -102,9 +110,18 @@ function ReceiptContent() {
   );
 }
 
+// Componente padre que envuelve en Suspense
 export default function ReceiptPage() {
   return (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={
+        <div className={styles.pageWrapper}>
+          <Header />
+          <main className={styles.cartContainer} style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Cargando detalles de tu compra...</p>
+          </main>
+          <Footer />
+        </div>
+      }>
         <ReceiptContent />
       </Suspense>
   );
